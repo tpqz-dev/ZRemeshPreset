@@ -1,0 +1,22 @@
+[vardef, ZFILEUTILDLL, [FileNameResolvePath,"Dll\ZFileUtils64.dll"]]
+[VarDef, ZBCDLL, [FileNameResolvePath,"Dll\zbc.dll"]]
+[VarDef,LOGPATH,  [FileNameResolvePath,"D:\Program Files\Pixologic\ZBrush 2021\ZScripts\logs\logzb.txt"]]
+[vardef, DLLFUNCTION, "LaunchAppWithFile"]
+[VarDef,gResult,""]
+[vardef, FILE_SEPARATOR, [StrFromAsc,92]]
+[vardef, SPACE, [StrFromAsc," "]]
+[vardef,QUOTES,[StrFromAsc,34]]
+[VarDef,NEWLINE,[StrMerge,[StrFromAsc,13],[StrFromAsc,10]]]
+[VarDef,isProd,0]
+
+[VarDef, VERSION,"" ]
+[RoutineDef, getVersion,
+    [if, isProd==1,
+        [VarSet, VERSION,"" ] 
+    ,
+        [VarDef, version1,INT(RAND(99))]
+        [VarDef, version2,INT(RAND(99)) ]
+        [VarDef, version3,INT(RAND(99)) ]
+        [VarSet,VERSION,[StrMerge,"-id",version1,version2,version3]]
+    ]
+]

@@ -1,0 +1,396 @@
+////////////////////////////////////////////////////////////////////////////
+/// Description
+/// version
+/// Author : Tpqz (Bruno.B)
+////////////////////////////////////////////////////////////////////////////
+// includes zscript insert Global GuiUtil Subtool String
+< zscriptinsert,"include\Global.txt">
+< zscriptinsert,"include\GuiUtil.txt">
+< zscriptinsert,"include\Subtool.txt">
+< zscriptinsert,"include\String.txt"> 
+< zscriptinsert,"include\dropdown.txt"> 
+// zscriptinsert,"include\TpqzLog.txt"
+//******** variable declaration**************
+//// version :  set to 1 for production
+[VarSet, isProd,1]
+[RoutineCall, getVersion]
+[VarDef, subpaletteName, [StrMerge,"Zplugin:ZRemeshPresets",VERSION]]
+[vardef,resDropdown,0 ]
+[vardef,resIndex,0 ]
+[vardef,itemIndex,0 ]
+
+[VarSet,rawFolderName,"ZremeshPresetsData"]
+[VarSet,defaultText,"Choose preset here"]
+[VarSet,uiButtonName,[StrMerge,subpaletteName,":resDropDown"]]
+[VarSet, saveFolderPath, [FileNameResolvePath,[StrMerge,rawFolderName,"\presets\"]]]
+[VarSet,IMG_ABOUT, [StrMerge,rawFolderName,"\images\","about.jpg"]]
+[VarSet,titleImg, [StrMerge,rawFolderName,"\images\","title.jpg"]]
+
+
+//******** aboutAboutBt**************
+[VarDef,aboutAboutBt(3)]
+[RoutineCall, CreateValueButton,[strmerge,"AboutBt|AboutBt|",titleImg],subpaletteName,aboutAboutBt]
+//******** ui_resDropDown**************
+[VarDef, ui_resDropDown(3)]
+[RoutineCall, CreateValueButton,"resDropDown|resDropDown|empty",subpaletteName,ui_resDropDown]
+//******** ui_add**************
+[VarDef, ui_add(3)]
+[RoutineCall, CreateValueButton,"add|add|empty",subpaletteName,ui_add]
+//******** ui_insert**************
+[VarDef, ui_insert(3)]
+[RoutineCall, CreateValueButton,"insert|insert|empty",subpaletteName,ui_insert]
+//******** ui_update**************
+[VarDef, ui_update(3)]
+[RoutineCall, CreateValueButton,"update|update|empty",subpaletteName,ui_update]
+//******** ui_rename**************
+[VarDef, ui_rename(3)]
+[RoutineCall, CreateValueButton,"rename|rename|empty",subpaletteName,ui_rename]
+//******** ui_remove**************
+[VarDef, ui_remove(3)]
+[RoutineCall, CreateValueButton,"remove|remove|empty",subpaletteName,ui_remove]
+//******** ui_<**************
+[VarDef, ui_back(3)]
+[RoutineCall, CreateValueButton,"<|move back|empty",subpaletteName,ui_back]
+//******** ui_>**************
+[VarDef, ui_up(3)]
+[RoutineCall, CreateValueButton,">|move up|empty",subpaletteName,ui_up]
+//******** ui_>**************
+[VarDef, ui_execute(3)]
+[RoutineCall, CreateValueButton,"Execute Zremesher|execute Zremesher|empty",subpaletteName,ui_execute]
+
+//****** routines ******* 
+[RoutineDef, uiDropDown,
+    [VarSet, resName, ""]
+    [VarDef, resIndex, 0]
+    [VarDef, resCount, 0]
+
+
+    // change button
+	[if,isShowDropdown,
+   	 [RoutineCall,ZFU_DropdownShow,resDropdown,uiButtonName,0 ]
+	]
+
+    [RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+    [RoutineCall,ZFU_DropdownGet,resDropdown,resIndex,resName]
+    [RoutineCall, ZFU_RenameButton, uiButtonName,resName]
+	
+	[RoutineCall,ZFU_DropdownGetCount,resDropdown,resCount]
+			[NoteBar, resCount]
+		[if,resCount==0,
+			[NoteBar, "empty list!"]
+			,
+			[VarSet, resName, [StrMerge, saveFolderPath,resName,".zvr"]]
+			[VarDef, array(16)]
+			[VarLoad,array,resName]
+			// update zbrush ui
+			[if,array(0)==1,[IPress,"Tool:Geometry:Legacy (2018)"],[IUnPress,"Tool:Geometry:Legacy (2018)"]]// Tool:Geometry:Legacy (2018)
+			[if,array(1)==1,[IPress,Tool:Geometry:FreezeBorder],[IUnPress,Tool:Geometry:FreezeBorder]]//Tool:Geometry:FreezeBorder
+			[if,array(2)==1,[IPress,Tool:Geometry:FreezeGroups],[IUnPress,Tool:Geometry:FreezeGroups]]//Tool:Geometry:FreezeGroups
+			[ISet,Tool:SubTool:ProjectionShell,array(3)]// Tool:Geometry:SmoothGroups
+			[if,array(4)==1,[IPress, Tool:Geometry:KeepGroups],[IUnPress, Tool:Geometry:KeepGroups]]// Tool:Geometry:KeepGroups
+			[if,array(5)==1,[IPress, Tool:Geometry:KeepCreases],[IUnPress,Tool:Geometry:KeepCreases]]// Tool:Geometry:KeepCreases
+			[if,array(6)==1,[IPress, Tool:Geometry:DetectEdges],[IUnPress,Tool:Geometry:DetectEdges]]// Tool:Geometry:DetectEdges
+			[ISet,"Tool:Geometry:Target Polygons Count",array(7)]// Tool:Geometry:Target Polygroups Count
+			[if,array(8)==1,[IPress, Tool:Geometry:Half],[IUnPress,Tool:Geometry:Half]]// Tool:Geometry:Half
+			[if,array(9)==1,[IPress, Tool:Geometry:Same],[IUnPress, Tool:Geometry:Same]]// Tool:Geometry:Same
+			[if,array(10)==1,[IPress,Tool:Geometry:Double],[IUnPress,Tool:Geometry:Double]]// Tool:Geometry:Double
+			[if,array(11)==1,[IPress,Tool:Geometry:Adapt],[IUnPress,Tool:Geometry:Adapt]]// Tool:Geometry:Adapt
+			[ISet, Tool:Geometry:AdaptiveSize,array(12)]// Tool:Geometry:AdaptiveSize
+			[ISet, "Tool:Geometry:Curves Strength",array(13)]// Tool:Geometry:Curves Strength
+			[if,array(14)==1,[IPress,"Tool:Geometry:Use Polypaint"],[IUnPress,"Tool:Geometry:Use Polypaint"]]// Tool:Geometry:Use Polypaint
+			[if,array(14)==1,
+			[ISet, "Tool:Geometry:Color Density",array(15)]// Tool:Geometry:Color Density
+			]
+		]
+	, // parameters
+	isShowDropdown
+]
+
+[RoutineDef, GetData,
+		[VarSet, array(0),[IGet,"Tool:Geometry:Legacy (2018)"]]
+		[VarSet, array(1),[IGet,Tool:Geometry:FreezeBorder]]
+		[VarSet, array(2),[IGet,Tool:Geometry:FreezeGroups]]
+		[VarSet, array(3),[IGet,Tool:Geometry:SmoothGroups]]
+		[VarSet, array(4),[IGet,Tool:Geometry:KeepGroups]]
+		[VarSet, array(5),[IGet,Tool:Geometry:KeepCreases]]
+		[VarSet, array(6),[IGet,Tool:Geometry:DetectEdges]]
+		[VarSet, array(7),[IGet,"Tool:Geometry:Target Polygons Count"]]
+		[VarSet, array(8),[IGet,Tool:Geometry:Half]]
+		[VarSet, array(9),[IGet,Tool:Geometry:Same]]
+		[VarSet, array(10),[IGet,Tool:Geometry:Double]]
+		[VarSet, array(11),[IGet,Tool:Geometry:Adapt]]
+		[VarSet, array(12),[IGet,Tool:Geometry:AdaptiveSize]]
+		[VarSet, array(13),[IGet,"Tool:Geometry:Curves Strength"]]
+		[VarSet, array(14),[IGet,"Tool:Geometry:Use Polypaint"]]
+		[VarSet, array(15),[IGet,"Tool:Geometry:Color Density"]]
+,array
+]
+
+[RoutineDef, uiAdd,
+	[VarDef, resName, ""]
+	[VarSet, resName, [StrAsk, [StrMerge, "item",""],"please enter name"]]
+	[RoutineCall,StrEquals,resName,"Default"]
+	[if,gResult==0,
+
+	//add in dropdown
+	[RoutineCall,ZFU_DropdownAdd, resDropdown, resName ]
+	// save data 
+	[VarDef, array(16)]
+	[RoutineCall, GetData,array ]
+	[notebar,[StrMerge, saveFolderPath,resName,".zvr"]]
+	// // varsave
+	[If,[FileExists,[StrMerge, saveFolderPath,resName,".zvr"]],
+			[NoteBar, " aborted "]
+		,
+			[VarDef, newIndex,0]
+			[VarSave,array,[StrMerge, saveFolderPath,resName,".zvr"]]
+			[RoutineCall,initCb]
+			[RoutineCall, ZFU_DropdownFind,resDropdown,resName,newIndex]
+			[RoutineCall, ZFU_DropdownSelect,resDropdown,newIndex]
+			[RoutineCall, ZFU_RenameButton, uiButtonName,resName]
+
+	]	,
+		[NoteBar, " aborted "]
+	]
+]
+
+[RoutineDef, uiUpdate, 
+[VarSet, resName, ""]
+[VarSet, resCount, 0]
+[RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+[RoutineCall,ZFU_DropdownGet,resDropdown,resIndex,resName]
+[RoutineCall,StrEquals,resName,"Default"]
+	[if,gResult==0,
+	// load modifications
+	// save data 
+		[VarDef, array(16)]
+		[RoutineCall,GetData,array ]
+		[If,[FileExists,[StrMerge, saveFolderPath,resName,".zvr"]],
+			[VarSave,array,[StrMerge, saveFolderPath,resName,".zvr"]]
+		,
+
+			[NoteBar, " file not exists "]
+		]
+		,
+		[NoteBar, " aborted "]
+	]
+]
+
+[RoutineDef, uiRename,
+	[VarSet, resName, ""]
+	[VarSet, resCount, 0]
+	[VarSet, newIndex, 0]
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+	[RoutineCall,ZFU_DropdownGet,resDropdown,resIndex,resName]
+	[VarSet, askedName, [StrAsk,"new name","please enter new  name"]]
+	[RoutineCall,StrEquals,askedName,"Default"]
+	[if,gResult==0,
+		[VarSet,oname,[StrMerge, saveFolderPath,resName,".zvr"]]
+		[VarSet,nname,[StrMerge, saveFolderPath,askedName,".zvr"]]
+		[RoutineCall,renameFile,oname,nname]
+		[RoutineCall,initCb]
+		[RoutineCall,ZFU_DropdownFind,resDropdown,askedName,newIndex]
+		[RoutineCall,ZFU_DropdownSelect,resDropdown,newIndex]
+		[RoutineCall, ZFU_RenameButton, uiButtonName,askedName]
+		,
+		[NoteBar, " aborted "]
+	]
+]
+
+[RoutineDef, uiRemove,
+	//get resindex
+	[VarSet, resName, ""]
+	[VarSet, resNameDel, ""]
+	[VarSet, resIndexDel, 0]
+	[VarSet, resCount, 0]
+	[RoutineCall,ZFU_DropdownGetCount,resDropdown,resCount]
+
+	[if,resCount>0,
+
+	[RoutineCall,confirmBox,"Do you really want to delete this item ?"]
+	[if, gResult==1,	
+
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+	[RoutineCall,ZFU_DropdownGet,resDropdown,resIndex,resNameDel]
+	[RoutineCall,StrEquals,resNameDel,"Default"]
+	
+	[if,gResult==0,
+		[VarSet, fileName, [FileNameResolvePath,[StrMerge,saveFolderPath,resNameDel,".zvr"]]]
+			[VarSet,fileName,[FileNameResolvePath,fileName]]
+					[If,[FileExists,fileName],
+						[VarSet, err, [FileExecute, [Var,ZFILEUTILDLL],"FileDelete",#fileName]] // Delete this file...
+						[If,err,
+							[NoteBar,"An error occurred."]
+						,
+							[NoteBar,"File deleted"]
+							[RoutineCall,initCb]
+							[VarSet, resCount, 0]
+							[RoutineCall,ZFU_DropdownGetCount,resDropdown,resCount]
+							[RoutineCall,ZFU_DropdownSelect,resDropdown,resCount-1]
+							[RoutineCall,ZFU_DropdownGet,resDropdown,resCount-1,resNameDel]
+							[RoutineCall, ZFU_RenameButton, uiButtonName,resNameDel]
+						]
+				,
+				[NoteBar,"No file to delete!"]
+			]
+		,// else
+		]
+		[RoutineCall,ZFU_DropdownRemove,resDropdown,resIndex]
+		// 
+		,
+		[NoteBar, " aborted "]
+
+
+	]// if rescount
+
+		,
+	 [NoteBar,"abort"]
+	]
+
+]
+// back
+[RoutineDef,uiBack,
+	[VarSet, resName,""]
+	[VarDef, index, 0]
+	[VarSet, previousIndex, 0]
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,index]
+	[RoutineCall,ZFU_DropdownGet,resDropdown,index,resName]
+	[VarSet,previousIndex, index-1]
+	[if,index-1>=0,
+		[RoutineCall,ZFU_DropdownSelect,resDropdown,index-1]
+		[RoutineCall,ZFU_DropdownGet,resDropdown,index-1,resName]
+		[RoutineCall, ZFU_RenameButton, uiButtonName,resName]
+		[RoutineCall, uiDropDown,0]
+	]
+]
+
+// up
+[RoutineDef,uiUp,
+	[VarSet, resName,""]
+	[VarSet, resCount, 0]
+	[VarDef, index, 0]
+	[VarSet, nextIndex, 0]
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,index]
+	[RoutineCall,ZFU_DropdownGet,resDropdown,index,resName]
+	[RoutineCall,ZFU_DropdownGetCount,resDropdown,resCount]
+	[VarSub, resCount,-1]
+		[VarAdd,index,1]
+		[if,index<resCount,
+			[RoutineCall,ZFU_DropdownSelect,resDropdown,index]
+			[RoutineCall,ZFU_DropdownGet,resDropdown,index,resName]
+			[RoutineCall, ZFU_RenameButton, uiButtonName,resName]
+			[RoutineCall, uiDropDown,0]
+
+		]
+]
+
+// for debug
+[RoutineDef,initCb,
+	[RoutineCall,GetFiles,saveFolderPath ]
+	[VarSet, resName, ""]
+	[VarSet, resCount, 0]
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+	[RoutineCall, ZFU_RenameButton, uiButtonName,defaultText]
+]
+
+ //***********************
+//bt ui
+ [ISubPalette,subpaletteName]
+
+//aboutAboutBt
+[IButton,aboutAboutBt(0), aboutAboutBt(1),
+// **** insert code here **** 
+[NoteIButton,"Exit"] 
+[NoteIButton,/*text*/,/*image*/[FileNameResolvePath, IMG_ABOUT],/*pressed?*/,1 /*disabled?*/,1,1,400,280,,,0] 
+[VarSet, output,[Note,"",,0,3027773,48,400,300 ,1,1,0,0,]] 
+[If, output= 1,[Exit]]
+,,180,,aboutAboutBt(2),30]
+
+//resDropDown
+//[pd]
+[IButton,ui_back(0), ui_back(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+       [RoutineCall, uiBack]
+	]
+,,20,,,50]
+//resDropDown
+//[pd]
+[IButton,ui_resDropDown(0), ui_resDropDown(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+        [RoutineCall, uiDropDown,1]
+   ,
+  [Notebar,"No tool"]]
+,,140,,,50]
+//
+[IButton,ui_up(0), ui_up(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+       [RoutineCall, uiUp]
+	]
+,,20,,,50]
+
+//add
+[IButton,ui_add(0), ui_add(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+    	[RoutineCall, uiAdd]
+    ,
+    [Notebar,"No tool"]]
+,,90,,,30]
+
+//update
+[IButton,ui_update(0), ui_update(1),
+    [RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+    	[RoutineCall, uiUpdate]
+    ,
+    [Notebar,"No tool"]]
+,,90,,,30]
+
+
+//rename
+[IButton,ui_rename(0), ui_rename(1),
+    [RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+   		[RoutineCall, uiRename]
+    ,
+    [Notebar,"No tool"]]
+,,90,,,30]
+
+//remove
+[IButton,ui_remove(0), ui_remove(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+        	[RoutineCall, uiRemove]
+    ,
+    [Notebar,"No tool"]]
+,,90,,,30]
+
+//remove
+[IButton,ui_execute(0), ui_execute(1),
+[RoutineCall, is3d]
+    [if,gResult == 1,
+    // **** insert code here **** 
+	[IPress, Tool:Geometry:Zremesher]
+    ,
+    [Notebar,"No tool"]]
+,,180,,,40]
+
+// post declarations
+[if,1,
+	[RoutineCall,initCb]
+	[VarSet, resName, ""]
+	[VarSet, resNameDel, ""]
+	[RoutineCall,ZFU_DropdownSelect,resDropdown,0]
+	[RoutineCall,ZFU_DropdownGetSelected,resDropdown,resIndex]
+	[RoutineCall,ZFU_DropdownGet,resDropdown,resIndex,resName]
+	[RoutineCall, ZFU_RenameButton, uiButtonName,resName]
+]
